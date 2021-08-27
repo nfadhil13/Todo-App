@@ -1,9 +1,12 @@
 import 'dart:io';
 
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
+import 'package:provider/provider.dart';
 import 'package:to_do_app/datasources/local/dao/todo_dao.dart';
 import 'package:to_do_app/models/todo.dart';
 import 'package:to_do_app/models/todo_type.dart';
+import 'package:to_do_app/providers/todo_list_provider.dart';
 
 class TodoForm extends StatefulWidget {
 
@@ -102,19 +105,20 @@ class _TodoFormState extends State<TodoForm> {
         firstDate: DateTime.now(),
         lastDate: DateTime.now().add(Duration(days: 100))
     );
-    _timeEditTextController.text = result?.toString() ?? "";
+    _timeEditTextController.text = result != null ? DateFormat.yMMMMd().format(result) : "";
     _todo =  Todo(id: _todo.id, type: _todo.type, title: _todo.title, description: _todo.description, dateTime: result ?? _todo.dateTime);
   }
 
-  final TodoDao _todoDao = TodoDao();
 
-  void _saveForm() {
+  void _saveForm() async{
     final currentState = _form.currentState;
     print(currentState);
     print(currentState?.validate());
     if(currentState != null && currentState.validate()){
       currentState.save();
-      _todoDao.createNewTodo(_todo);
+      final productListProvider = Provider.of<TodoListProvider>(context, listen:  false);
+      await productListProvider.addNewTodo(_todo);
+      Navigator.of(context).pop(true);
     }
   }
 
@@ -122,127 +126,141 @@ class _TodoFormState extends State<TodoForm> {
   Widget build(BuildContext context) {
     return Scaffold(
         backgroundColor: Theme.of(context).primaryColor,
-        body: SingleChildScrollView(
-        child: Container(
-          padding: EdgeInsets.symmetric(horizontal: 24, vertical: 24),
-          child: Form(
-            key: _form,
-            child: Column(
-            children: [
-              _buildAppBar(context),
-              SizedBox(height: 45),
-              _buildCircleIcon(),
-              SizedBox(height: 20),
-              DropdownButtonFormField<TodoType>(
-                onSaved: (value) {
-                  _todo = _todo.copyAndReplace(newTodotype: value);
-                },
-                value: _todoType,
-                hint: Text("Todo Type", style: TextStyle(color: Colors.grey.shade500),),
-                onChanged: (value) {
-                    setState(() {
-                      _todoType = value;
-                    });
-                },
-                validator: (value) {
-                  if(value == null) return "You have to choose the todo type";
-                  return null;
-                },
-                iconEnabledColor: Colors.white,
-                style: TextStyle(
-                  color: Colors.white,
-                  fontSize: 16
-                ),
-                dropdownColor: Theme.of(context).accentColor,
-                items: <DropdownMenuItem<TodoType>>[
-                  DropdownMenuItem(child: Text("Business"), value: TodoType.Business),
-                  DropdownMenuItem(child: Text("Personal"), value: TodoType.Personal)
-                ],
-                decoration: _buildtextFieldInputDecoration(""),
-              ),
-              SizedBox(height: 20),
-              TextFormField(
-                onSaved: (value) {
-                  _todo = _todo.copyAndReplace(newTitle: value);
-                },
-                validator: (value) {
-                  if(value == null || value.isEmpty) return "Title has to be filled";
-                  return null;
-                },
-                maxLines: 1,
-                style: TextStyle(
-                  color: Colors.white
-                ),
-                decoration: _buildtextFieldInputDecoration("Title"),
-              ),
-              SizedBox(height: 20),
-              // Description field
-              TextFormField(
-                onSaved: (value) {
-                  _todo = _todo.copyAndReplace(newDescription: value);
-                },
-                validator: (value) {
-                  if(value == null || value.isEmpty) return "Description has to be filled";
-                  return null;
-                },
-                maxLines: 3,
-                style: TextStyle(
-                    color: Colors.white
-                ),
-                decoration: _buildtextFieldInputDecoration("Description"),
-              ),
-              SizedBox(height: 20),
-              Stack(
+        body: Stack(
+          children: [
+            SingleChildScrollView(
+            child: Container(
+              padding: EdgeInsets.symmetric(horizontal: 24, vertical: 24),
+              child: Form(
+                key: _form,
+                child: Column(
                 children: [
+                  _buildAppBar(context),
+                  SizedBox(height: 45),
+                  _buildCircleIcon(),
+                  SizedBox(height: 20),
+                  DropdownButtonFormField<TodoType>(
+                    onSaved: (value) {
+                      _todo = _todo.copyAndReplace(newTodotype: value);
+                    },
+                    value: _todoType,
+                    hint: Text("Todo Type", style: TextStyle(color: Colors.grey.shade500),),
+                    onChanged: (value) {
+                        setState(() {
+                          _todoType = value;
+                        });
+                    },
+                    validator: (value) {
+                      if(value == null) return "You have to choose the todo type";
+                      return null;
+                    },
+                    iconEnabledColor: Colors.white,
+                    style: TextStyle(
+                      color: Colors.white,
+                      fontSize: 16
+                    ),
+                    dropdownColor: Theme.of(context).accentColor,
+                    items: <DropdownMenuItem<TodoType>>[
+                      DropdownMenuItem(child: Text("Business"), value: TodoType.Business),
+                      DropdownMenuItem(child: Text("Personal"), value: TodoType.Personal)
+                    ],
+                    decoration: _buildtextFieldInputDecoration(""),
+                  ),
+                  SizedBox(height: 20),
                   TextFormField(
-                    controller: _timeEditTextController,
-                    enabled: false,
+                    onSaved: (value) {
+                      _todo = _todo.copyAndReplace(newTitle: value);
+                    },
+                    validator: (value) {
+                      if(value == null || value.isEmpty) return "Title has to be filled";
+                      return null;
+                    },
                     maxLines: 1,
+                    style: TextStyle(
+                      color: Colors.white
+                    ),
+                    decoration: _buildtextFieldInputDecoration("Title"),
+                  ),
+                  SizedBox(height: 20),
+                  // Description field
+                  TextFormField(
+                    onSaved: (value) {
+                      _todo = _todo.copyAndReplace(newDescription: value);
+                    },
+                    validator: (value) {
+                      if(value == null || value.isEmpty) return "Description has to be filled";
+                      return null;
+                    },
+                    maxLines: 3,
                     style: TextStyle(
                         color: Colors.white
                     ),
-                    decoration: InputDecoration(
-                        disabledBorder: UnderlineInputBorder(
-                          borderSide: BorderSide(color: Colors.white),
-                        ),
-                        hintText: "Date",
-                        hintStyle: TextStyle(
-                            color: Colors.grey.shade500
-                        )
-                    ),
+                    decoration: _buildtextFieldInputDecoration("Description"),
                   ),
-                  Positioned.fill(
-                    child: GestureDetector(
-                      onTap: () {
-                        _showDatePicker(context);
-                      },
-                      child: Container(
-                        alignment: Alignment.centerRight,
-                        width: double.infinity,
-                        child: Icon(
-                          Icons.date_range,
-                          color: Colors.white,
+                  SizedBox(height: 20),
+                  Stack(
+                    children: [
+                      TextFormField(
+                        controller: _timeEditTextController,
+                        enabled: false,
+                        maxLines: 1,
+                        style: TextStyle(
+                            color: Colors.white
+                        ),
+                        decoration: InputDecoration(
+                            disabledBorder: UnderlineInputBorder(
+                              borderSide: BorderSide(color: Colors.white),
+                            ),
+                            hintText: "Date",
+                            hintStyle: TextStyle(
+                                color: Colors.grey.shade500
+                            )
                         ),
                       ),
-                    ),
+                      Positioned.fill(
+                        child: GestureDetector(
+                          onTap: () {
+                            _showDatePicker(context);
+                          },
+                          child: Container(
+                            alignment: Alignment.centerRight,
+                            width: double.infinity,
+                            child: Icon(
+                              Icons.date_range,
+                              color: Colors.white,
+                            ),
+                          ),
+                        ),
+                      )
+                    ],
+                  ),
+                  SizedBox(height: 52),
+                  ElevatedButton(
+                      onPressed: _saveForm,
+                      child: Container(
+                          padding: EdgeInsets.symmetric(vertical: 16),
+                          width: double.infinity,
+                          child: Text("ADD YOUR TODO"),
+                          alignment: Alignment.center
+                      ),
+
                   )
                 ],
-              ),
-              SizedBox(height: 52),
-              ElevatedButton(
-                  onPressed: _saveForm,
-                  child: Container(
-                      padding: EdgeInsets.symmetric(vertical: 16),
-                      width: double.infinity,
-                      child: Text("ADD YOUR TODO"),
-                      alignment: Alignment.center
-                  ),
-
-              )
-            ],
-          )),
-        ),
+              )),
+            ),
       ),
+             Consumer<TodoListProvider>(
+               builder: (_, model ,__) {
+                 return (model.isFetching)  ? Container(
+                   color: Colors.black.withOpacity(0.7),
+                   child: Center(
+                     child: CircularProgressIndicator(),
+                   ),
+                 ) : Container();
+               },
+             )
+          ],
+        ),
     );
   }
 }

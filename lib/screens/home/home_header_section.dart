@@ -1,4 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
+import 'package:provider/provider.dart';
+import 'package:to_do_app/providers/todo_list_provider.dart';
 
 class HomeHeaderSection extends StatelessWidget {
   const HomeHeaderSection({
@@ -10,8 +13,12 @@ class HomeHeaderSection extends StatelessWidget {
       mainAxisAlignment: MainAxisAlignment.center,
       crossAxisAlignment: CrossAxisAlignment.end,
       children: [
-        Text("24",
-            style: TextStyle(letterSpacing: 1, fontSize: 22, color: Colors.white)),
+        Consumer<TodoListProvider>(
+          builder: (context, model, child) {
+            return Text(model.numberOfTodo.toString(),
+            style: TextStyle(letterSpacing: 1, fontSize: 22, color: Colors.white));
+          },
+        ),
         Text("Things to do",
           style: TextStyle(letterSpacing: 1, fontSize: 12, color: Colors.white.withOpacity(0.8))
         )
@@ -20,17 +27,31 @@ class HomeHeaderSection extends StatelessWidget {
   }
 
   Widget _buildTodoPercentageStatus() {
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.end,
-      crossAxisAlignment: CrossAxisAlignment.end,
-      children: [
-        Container(
-            height: 20,
-            width: 20,
-            child: CircularProgressIndicator(value: 0.8, color: Color.fromRGBO(139, 167, 215, 1), backgroundColor: Color.fromRGBO(139, 167, 215, 1).withOpacity(0.5), strokeWidth: 3,)),
-        SizedBox(width: 10),
-        Text("85% Done", style: TextStyle(letterSpacing: 1, fontSize: 12, color: Colors.white.withOpacity(0.8)))
-      ],
+    return Consumer<TodoListProvider>(
+      builder: (_, model, __) {
+        return Row(
+          mainAxisAlignment: MainAxisAlignment.end,
+          crossAxisAlignment: CrossAxisAlignment.end,
+          children: [
+            Container(
+                height: 20,
+                width: 20,
+                child: CircularProgressIndicator(
+                  value: model.numberOfTotal == 0 ? 0 : model.numberOfDone/model.numberOfTotal * 100,
+                  color: Color.fromRGBO(139, 167, 215, 1),
+                  backgroundColor:
+                      Color.fromRGBO(139, 167, 215, 1).withOpacity(0.5),
+                  strokeWidth: 3,
+                )),
+            SizedBox(width: 10),
+            Text("${(model.numberOfTotal == 0 ? 0 : model.numberOfDone/model.numberOfTotal * 100).toStringAsFixed(2)}% Done",
+                style: TextStyle(
+                    letterSpacing: 1,
+                    fontSize: 12,
+                    color: Colors.white.withOpacity(0.8)))
+          ],
+        );
+      },
     );
   }
 
@@ -72,7 +93,7 @@ class HomeHeaderSection extends StatelessWidget {
                         child: Align(
                             alignment: Alignment.bottomLeft,
                             child: Text(
-                              "Nov 19, 2016",
+                              DateFormat.yMMMMd().format(DateTime.now()),
                               style: TextStyle(
                                   letterSpacing: 1,
                                   color: Colors.white.withOpacity(0.5)

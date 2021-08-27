@@ -42,14 +42,15 @@ class TodoEntity {
 
 
   Map<String, dynamic> toMap() {
-    return {
-      fieldNameId : this.id,
+    final mapped = {
       fieldNameDateTime: this.dateTime,
       fieldNameDescription: this.description,
       fieldNameIsDone: this.isDone,
       fieldNameTitle: this.title,
       fieldNameType: this.type
     };
+    if(this.id != -1)mapped.putIfAbsent(fieldNameId, () => this.id);
+    return mapped;
   }
 
   static TodoEntity fromMap(Map<String, dynamic> map) {
