@@ -20,22 +20,22 @@
 
 Sebuah aplikasi To Do list. Pada aplikasi ini data-data disimpan secara lokal pada device. Tujuan aplikasi ini dibuat adalah sebagai bahan pembelajaran menggunakan local database sqlite dengan package <a href="https://pub.dev/packages/sqflite">sqflite<a/>.
   
-Pada repo ini, selain berfokus pada local database, saya juga coba mengimplementasikan _seperation of concern_. Sampai saat terakhir readme ini diubah, saya belum menemukan sumber yang baik, tentang bagaimana cara mengimplementasikan _seperation of concern_ pada flutter. Oleh karena itu saya coba mengimplementasikan clean architectur yang biasa saya lakukan pada native android.
+Pada repo ini, selain berfokus pada local database, saya juga coba mengimplementasikan _separation of concern_. Sampai saat terakhir readme ini diubah, saya belum menemukan sumber yang baik, tentang bagaimana cara mengimplementasikan _separation of concern_ pada flutter. Oleh karena itu saya coba mengimplementasikan clean architectur yang biasa saya lakukan pada native android.
   
 Pada aplikasi ini fokus ditekankan pada :
   - Bagaimana menggunakan sqlite sebagai local database menggunakan package [sqflite](https://pub.dev/packages/sqflite)
-  - Bagaimana melakukan seperation of concern pada Flutter 
+  - Bagaimana melakukan separation of concern pada Flutter 
 
 Desain dari aplikasi diambil dari <a href="https://id.pinterest.com/pin/306174474652524800/?d=t&mt=login">Pinterest</a>
 
 ### English
 This is a basic ToDo List App. In this app, all your todo list data are stored in local database. This application made for my exploration in sqlite database. In this repository i'm using [sqflite](https://pub.dev/packages/sqflite) as package to help me work with sqlite in Flutter.
   
-In this repo, i'm also trying to implement seperation of concern. For the seperation of concern, i havent find any valid source to follow with. But because i have some experience in native android, i'm trying to implement what i usually do in native android here in flutter.
+In this repo, i'm also trying to implement separation of concern. For the separation of concern, i havent find any valid source to follow with. But because i have some experience in native android, i'm trying to implement what i usually do in native android here in flutter.
 
 Topics that covered by this repo are :
 - Sqlite local database using [sqflite](https://pub.dev/packages/sqflite)
-- How to implement "seperation of concent" in Flutter.
+- How to implement "separation of concent" in Flutter.
   
 
 
